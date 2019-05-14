@@ -80,3 +80,6 @@ runs seamlessly on CPU and GPU.
 Read the documentation [Keras.io](http://keras.io/)
 
 Keras is compatible with: Python 2.7-3.5.
+=======
+# bmi260
+final project for bmi260
