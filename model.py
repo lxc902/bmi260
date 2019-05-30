@@ -10,9 +10,6 @@ from keras.callbacks import ModelCheckpoint, LearningRateScheduler
 from keras import backend as keras
 
 
-<<<<<<< HEAD
-def unet(pretrained_weights = None,input_size = (256,256,1)):
-=======
 def jaccard_distance(y_true, y_pred, smooth=100):
     """Jaccard distance for semantic segmentation.
 
@@ -53,7 +50,6 @@ def jaccard_distance(y_true, y_pred, smooth=100):
     sum_ = keras.sum(keras.abs(y_true) + keras.abs(y_pred), axis=-1)
     jac = (intersection + smooth) / (sum_ - intersection + smooth)
     return (1 - jac) * smooth
-
 
 def unet(pretrained_weights = None,input_size = (256,256,1)):
     inputs = Input(input_size)
