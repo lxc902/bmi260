@@ -1,2 +1,4 @@
 unet_membrane.hdf5
 data/
+__pycache__/
+*.py[cod]
