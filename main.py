@@ -19,6 +19,8 @@ model = unet()
 model_checkpoint = ModelCheckpoint('unet_membrane.hdf5', monitor='loss',verbose=1, save_best_only=True)
 model.fit_generator(myGene,steps_per_epoch=100,epochs=15,callbacks=[model_checkpoint])
 
+model.save('unet_membrane_trained.h5')
+
 testimgs = os.listdir("data/membrane/test")
 testimgs = [x for x in testimgs if x.endswith(".png")]
 numTest = len(testimgs)
