@@ -45,8 +45,12 @@ def adjustData(img,mask,flag_multi_class,num_class):
 
 
 
-def trainGenerator(batch_size,train_path,image_folder,mask_folder,aug_dict,image_color_mode = "grayscale",
-                    mask_color_mode = "grayscale",image_save_prefix  = "image",mask_save_prefix  = "mask",
+def trainGenerator(batch_size,train_path,image_folder,mask_folder,aug_dict,
+                    image_color_mode = "rgb", ## dbg
+                    #image_color_mode = "grayscale",
+                    #mask_color_mode = "rgb", ## dbg
+                    mask_color_mode = "grayscale",
+                    image_save_prefix  = "image",mask_save_prefix  = "mask",
                     flag_multi_class = False,num_class = 2,save_to_dir = None,target_size = (256,256),seed = 1):
     '''
     can generate image and mask at the same time
@@ -76,18 +80,26 @@ def trainGenerator(batch_size,train_path,image_folder,mask_folder,aug_dict,image
         save_prefix  = mask_save_prefix,
         seed = seed)
     train_generator = zip(image_generator, mask_generator)
+    cnt=0
     for (img,mask) in train_generator:
         img,mask = adjustData(img,mask,flag_multi_class,num_class)
+        cnt+=1
         yield (img,mask)
+    print('Read all input #{}'.format(cnt))
 
 
 
-def testGenerator(test_path,num_image = 30,target_size = (256,256),flag_multi_class = False,as_gray = True):
-    for i in range(num_image):
-        img = io.imread(os.path.join(test_path,"%d.png"%i),as_gray = as_gray)
+def testGenerator(test_path, names=[],num_image = 30,target_size = (256,256),flag_multi_class = False,as_gray = True):
+    fs = [x for x in os.listdir(test_path) if x.endswith(".png")]
+    names.extend(fs)
+    #print('fs={}'.format(fs))
+    for i in fs:
+        #img = io.imread(os.path.join(test_path,"%d.png"%i),as_gray = as_gray)
+        img = io.imread(os.path.join(test_path,i),as_gray = as_gray)
         img = img / 255
         img = trans.resize(img,target_size)
-        img = np.reshape(img,img.shape+(1,)) if (not flag_multi_class) else img
+        if as_gray:
+            img = np.reshape(img,img.shape+(1,)) if (not flag_multi_class) else img
         img = np.reshape(img,(1,)+img.shape)
         yield img
 
@@ -118,9 +130,18 @@ def labelVisualize(num_class,color_dict,img):
 
 
 
-def saveResult(save_path,npyfile,flag_multi_class = False,num_class = 2):
+def saveResult(save_path,npyfile,names,flag_multi_class = False,num_class = 2):
+  import warnings
+  with warnings.catch_warnings():
+    if not os.path.exists(save_path):
+        os.makedirs(save_path)
+    cnt=0
     for i,item in enumerate(npyfile):
+        cnt=cnt+1
+        if cnt>2:
+            warnings.simplefilter("ignore")
         img = labelVisualize(num_class,COLOR_DICT,item) if flag_multi_class else item[:,:,0]
-        save_path = os.path.join(save_path, "../predict")
-        save_path = os.path.normpath(save_path)
-        io.imsave(os.path.join(save_path,"%d.png"%i),img)
+        img = img*255
+        img = img.astype(np.uint8)
+        #io.imsave(os.path.join(save_path,"%d.png"%i),img)
+        io.imsave(os.path.join(save_path,names[i]), img)
