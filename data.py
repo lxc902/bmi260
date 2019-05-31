@@ -46,8 +46,8 @@ def adjustData(img,mask,flag_multi_class,num_class):
 
 
 def trainGenerator(batch_size,train_path,image_folder,mask_folder,aug_dict,
-                    image_color_mode = "rgb", ## dbg
-                    #image_color_mode = "grayscale",
+                    #image_color_mode = "rgb", ## dbg
+                    image_color_mode, #= "grayscale",
                     #mask_color_mode = "rgb", ## dbg
                     mask_color_mode = "grayscale",
                     image_save_prefix  = "image",mask_save_prefix  = "mask",
