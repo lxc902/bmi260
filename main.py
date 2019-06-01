@@ -20,12 +20,12 @@ data_gen_args = dict(rotation_range=0.2,
                     horizontal_flip=True,
                     fill_mode='nearest')
 
-batchsize=15
+batchsize=10
 steps_per_epoch=100
-epochs=60*7
-learning_rate=1e-5
-#image_color_mode="grayscale" 
-image_color_mode="rgb" 
+epochs=20
+learning_rate=3e-5
+image_color_mode="grayscale" 
+#image_color_mode="rgb" 
 myGene = trainGenerator(batchsize,
     'data/membrane/train','image','label',data_gen_args,
     image_color_mode=image_color_mode,
