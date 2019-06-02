@@ -20,12 +20,12 @@ data_gen_args = dict(rotation_range=0.2,
                     horizontal_flip=True,
                     fill_mode='nearest')
 
-batchsize=10
+batchsize=4
 steps_per_epoch=100
-epochs=20
+epochs=15
 learning_rate=3e-5
-image_color_mode="grayscale" 
-#image_color_mode="rgb" 
+#image_color_mode="grayscale" 
+image_color_mode="rgb" 
 myGene = trainGenerator(batchsize,
     'data/membrane/train','image','label',data_gen_args,
     image_color_mode=image_color_mode,
@@ -36,16 +36,24 @@ as_gray=True
 if image_color_mode is "rgb":
   as_gray=False
   input_size=(256,256,3)
-model = unet(input_size=input_size, learning_rate=learning_rate)
-#model_checkpoint = ModelCheckpoint('unet_membrane_6_layers.h5', monitor='loss',verbose=1, save_best_only=True)
+
+to_load=True
+save_path='unet_membrane_10_layers_saved.h5'
+
+if to_load:
+  model=keras.models.load_model(save_path, custom_objects={'jaccard_distance':jaccard_distance})
+else:
+  model = unet(input_size=input_size, learning_rate=learning_rate)
+
+#model_checkpoint = ModelCheckpoint('unet_membrane_10_layers.h5', monitor='loss',verbose=1, save_best_only=True)
 print('..............starting................')
-model.fit_generator(myGene,
-    steps_per_epoch=steps_per_epoch,
-    epochs=epochs)
-    #callbacks=[model_checkpoint])
+if not to_load:
+  model.fit_generator(myGene,
+      steps_per_epoch=steps_per_epoch, epochs=epochs) #callbacks=[model_checkpoint])
 print('..............done................')
 
-#model.save('unet_membrane_6_layers_saved.h5')
+if not to_load:
+  model.save(save_path)
 
 testimgs = os.listdir("data/membrane/test")
 testimgs = [x for x in testimgs if x.endswith(".png")]
