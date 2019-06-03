@@ -20,7 +20,7 @@ data_gen_args = dict(rotation_range=0.2,
                     horizontal_flip=True,
                     fill_mode='nearest')
 
-batchsize=4
+batchsize=16
 steps_per_epoch=100
 epochs=100
 learning_rate=3e-5
@@ -37,8 +37,8 @@ if image_color_mode is "rgb":
   as_gray=False
   input_size=(256,256,3)
 
-#to_load=False
-to_load=True
+to_load=False
+#to_load=True
 save_path='unet_saved_6_layers_batch'+str(batchsize)+'_epoch'+str(epochs)+'.h5'
 history_path=save_path[:-3]+'.png'
 
