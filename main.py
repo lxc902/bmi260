@@ -1,4 +1,9 @@
-from model_6 import *
+#md=6
+md=10
+if md == 6:
+  from model_6 import *
+elif md == 10:
+  from model_10 import *
 from data import *
 
 import keras
@@ -20,26 +25,30 @@ data_gen_args = dict(rotation_range=0.2,
                     horizontal_flip=True,
                     fill_mode='nearest')
 
-batchsize=16
-steps_per_epoch=100
-epochs=100
-learning_rate=3e-5
+batchsize=1
+steps_per_epoch=16*2
+epochs=30
+lr_str="1e-3"
+learning_rate=float(lr_str)
 #image_color_mode="grayscale" 
 image_color_mode="rgb" 
 myGene = trainGenerator(batchsize,
     'data/membrane/train','image','label',data_gen_args,
     image_color_mode=image_color_mode,
     save_to_dir = None)
-
-input_size=(256,256,1)
-as_gray=True
-if image_color_mode is "rgb":
-  as_gray=False
-  input_size=(256,256,3)
-
 to_load=False
 #to_load=True
-save_path='unet_saved_6_layers_batch'+str(batchsize)+'_epoch'+str(epochs)+'.h5'
+
+as_gray=True
+input_chan=1
+if image_color_mode is "rgb":
+  as_gray=False
+  input_chan=3
+input_h=256*scl
+#input_h=256
+input_size=(input_h,input_h,input_chan)
+
+save_path='model'+str(md)+'_'+str(input_h)+'_b'+str(batchsize)+'_e'+str(epochs)+'_l'+str(lr_str)+'.h5'
 history_path=save_path[:-3]+'.png'
 
 if to_load:
@@ -49,9 +58,22 @@ else:
 
 #model_checkpoint = ModelCheckpoint('unet_membrane_10_layers.h5', monitor='loss',verbose=1, save_best_only=True)
 print('..............starting................')
+class AccuracyStopping(keras.callbacks.Callback):
+    def __init__(self, acc_threshold):
+        super(AccuracyStopping, self).__init__()
+        self._acc_threshold = acc_threshold
+
+    def on_epoch_end(self, batch, logs={}):
+        train_acc = logs.get('acc')
+        self.model.stop_training = 1 - train_acc <= self._acc_threshold
+        
+acc_callback = AccuracyStopping(0.05)
 if not to_load:
   seqModel=model.fit_generator(myGene,
-      steps_per_epoch=steps_per_epoch, epochs=epochs) #callbacks=[model_checkpoint])
+      steps_per_epoch=steps_per_epoch, epochs=epochs,
+      callbacks=[acc_callback]
+      #callbacks=[model_checkpoint]
+  )
 print('..............done................')
 if not to_load:
   model.save(save_path)

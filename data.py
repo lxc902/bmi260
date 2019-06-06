@@ -19,6 +19,8 @@ Pedestrian = [64,64,0]
 Bicyclist = [0,128,192]
 Unlabelled = [0,0,0]
 
+scl=4
+
 COLOR_DICT = np.array([Sky, Building, Pole, Road, Pavement,
                           Tree, SignSymbol, Fence, Car, Pedestrian, Bicyclist, Unlabelled])
 
@@ -51,7 +53,7 @@ def trainGenerator(batch_size,train_path,image_folder,mask_folder,aug_dict,
                     #mask_color_mode = "rgb", ## dbg
                     mask_color_mode = "grayscale",
                     image_save_prefix  = "image",mask_save_prefix  = "mask",
-                    flag_multi_class = False,num_class = 2,save_to_dir = None,target_size = (256,256),seed = 1):
+                    flag_multi_class = False,num_class = 2,save_to_dir = None,target_size = (256*scl,256*scl),seed = 1):
     '''
     can generate image and mask at the same time
     use the same seed for image_datagen and mask_datagen to ensure the transformation for image and mask is the same
@@ -89,7 +91,7 @@ def trainGenerator(batch_size,train_path,image_folder,mask_folder,aug_dict,
 
 
 
-def testGenerator(test_path, names=[],num_image = 30,target_size = (256,256),flag_multi_class = False,as_gray = True):
+def testGenerator(test_path, names=[],num_image = 30,target_size = (256*scl,256*scl),flag_multi_class = False,as_gray = True):
     fs = [x for x in os.listdir(test_path) if x.endswith(".png")]
     names.extend(fs)
     #print('fs={}'.format(fs))

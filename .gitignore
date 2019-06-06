@@ -1,4 +1,5 @@
 data/membrane/train
+data/membrane/train14k
 data/membrane/tmp
 __pycache__
 __pycache__/data.cpython-36.pyc
