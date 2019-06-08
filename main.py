@@ -1,5 +1,5 @@
-#md=6
-md=10
+md=6
+#md=10
 if md == 6:
   from model_6 import *
 elif md == 10:
@@ -25,10 +25,10 @@ data_gen_args = dict(rotation_range=0.2,
                     horizontal_flip=True,
                     fill_mode='nearest')
 
-batchsize=1
-steps_per_epoch=16*2
-epochs=30
-lr_str="1e-3"
+batchsize=8
+steps_per_epoch=50
+epochs=40
+lr_str="3e-5"
 learning_rate=float(lr_str)
 #image_color_mode="grayscale" 
 image_color_mode="rgb" 
@@ -44,11 +44,11 @@ input_chan=1
 if image_color_mode is "rgb":
   as_gray=False
   input_chan=3
-input_h=256*scl
+input_h=img_size_scaled
 #input_h=256
 input_size=(input_h,input_h,input_chan)
 
-save_path='model'+str(md)+'_'+str(input_h)+'_b'+str(batchsize)+'_e'+str(epochs)+'_l'+str(lr_str)+'.h5'
+save_path='finalmodel'+str(md)+'_'+str(input_h)+'_b'+str(batchsize)+'x'+str(steps_per_epoch)+'_e'+str(epochs)+'_l'+str(lr_str)+'_cjit.h5'
 history_path=save_path[:-3]+'.png'
 
 if to_load:
@@ -57,7 +57,7 @@ else:
   model = unet(input_size=input_size, learning_rate=learning_rate)
 
 #model_checkpoint = ModelCheckpoint('unet_membrane_10_layers.h5', monitor='loss',verbose=1, save_best_only=True)
-print('..............starting................')
+print('..........starting...........', save_path)
 class AccuracyStopping(keras.callbacks.Callback):
     def __init__(self, acc_threshold):
         super(AccuracyStopping, self).__init__()
@@ -74,7 +74,7 @@ if not to_load:
       callbacks=[acc_callback]
       #callbacks=[model_checkpoint]
   )
-print('..............done................')
+print('..........done...........', save_path)
 if not to_load:
   model.save(save_path)
   print(seqModel)
@@ -82,7 +82,7 @@ if not to_load:
   #val_loss   = seqModel.history['val_loss']
   train_acc  = seqModel.history['acc']
   #val_acc    = seqModel.history['val_acc']
-  xc         = range(epochs)
+  xc         = range(len(train_loss))
 
   from matplotlib import pyplot as plt
   plt.figure()
@@ -101,5 +101,6 @@ print('DBG numTest={}'.format(numTest))
 names=[]
 testGene = testGenerator("data/membrane/test", names, numTest, as_gray=as_gray)
 results = model.predict_generator(testGene,numTest,verbose=1)
+#results = results * 255
 #print ('names={}'.format(names))
 saveResult("data/membrane/predict",results,names)

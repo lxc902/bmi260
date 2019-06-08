@@ -19,7 +19,7 @@ Pedestrian = [64,64,0]
 Bicyclist = [0,128,192]
 Unlabelled = [0,0,0]
 
-scl=4
+img_size_scaled=256
 
 COLOR_DICT = np.array([Sky, Building, Pole, Road, Pavement,
                           Tree, SignSymbol, Fence, Car, Pedestrian, Bicyclist, Unlabelled])
@@ -53,7 +53,7 @@ def trainGenerator(batch_size,train_path,image_folder,mask_folder,aug_dict,
                     #mask_color_mode = "rgb", ## dbg
                     mask_color_mode = "grayscale",
                     image_save_prefix  = "image",mask_save_prefix  = "mask",
-                    flag_multi_class = False,num_class = 2,save_to_dir = None,target_size = (256*scl,256*scl),seed = 1):
+                    flag_multi_class = False,num_class = 2,save_to_dir = None,target_size = (img_size_scaled,img_size_scaled),seed = 1):
     '''
     can generate image and mask at the same time
     use the same seed for image_datagen and mask_datagen to ensure the transformation for image and mask is the same
@@ -86,12 +86,32 @@ def trainGenerator(batch_size,train_path,image_folder,mask_folder,aug_dict,
     for (img,mask) in train_generator:
         img,mask = adjustData(img,mask,flag_multi_class,num_class)
         cnt+=1
+        print('----', img.shape)
+        print('---',img.dtype)
+        import skimage.io as io
+        import tensorflow as tf
+        #for i in range(8):
+          #io.imsave('gen_ori_'+str(i)+'.png',img[i])
+        for i in range(8):
+          image=tf.image.random_hue(img[i], max_delta=0.2)
+          image=tf.Session().run(image)
+          #io.imsave('gen_hue_'+str(i)+'.png',image)
+          image=tf.image.random_saturation(image,lower=0.5, upper=1.5)
+          image=tf.Session().run(image)
+          #io.imsave('gen_sat_'+str(i)+'.png',image)
+          image=tf.image.random_brightness(image,max_delta=32./255.)
+          image=tf.Session().run(image)
+          #io.imsave('gen_bri_'+str(i)+'.png',image)
+          image=tf.image.random_contrast(image,lower=0.5, upper=1.5)
+          image=tf.Session().run(image)
+          #io.imsave('gen_con_'+str(i)+'.png',image)
+          img[i, :, :, :] = image
         yield (img,mask)
     print('Read all input #{}'.format(cnt))
 
 
 
-def testGenerator(test_path, names=[],num_image = 30,target_size = (256*scl,256*scl),flag_multi_class = False,as_gray = True):
+def testGenerator(test_path, names=[],num_image = 30,target_size = (img_size_scaled,img_size_scaled),flag_multi_class = False,as_gray = True):
     fs = [x for x in os.listdir(test_path) if x.endswith(".png")]
     names.extend(fs)
     #print('fs={}'.format(fs))
