@@ -1,4 +1,5 @@
 old_runs
+data/membrane
 data/membrane/train*
 data/membrane/train
 data/membrane/train14k
