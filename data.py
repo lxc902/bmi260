@@ -1,5 +1,7 @@
 from __future__ import print_function
 from keras.preprocessing.image import ImageDataGenerator
+import tensorflow as tf
+import random
 import numpy as np 
 import os
 import glob
@@ -20,6 +22,7 @@ Bicyclist = [0,128,192]
 Unlabelled = [0,0,0]
 
 img_size_scaled=256
+pr = 40
 
 COLOR_DICT = np.array([Sky, Building, Pole, Road, Pavement,
                           Tree, SignSymbol, Fence, Car, Pedestrian, Bicyclist, Unlabelled])
@@ -83,30 +86,46 @@ def trainGenerator(batch_size,train_path,image_folder,mask_folder,aug_dict,
         seed = seed)
     train_generator = zip(image_generator, mask_generator)
     cnt=0
+    #sess = tf.Session()
     for (img,mask) in train_generator:
         img,mask = adjustData(img,mask,flag_multi_class,num_class)
         cnt+=1
-        print('----', img.shape)
-        print('---',img.dtype)
-        import skimage.io as io
-        import tensorflow as tf
+        #print('----', img.shape)
+        #print('---',img.dtype)
         #for i in range(8):
           #io.imsave('gen_ori_'+str(i)+'.png',img[i])
-        for i in range(8):
-          image=tf.image.random_hue(img[i], max_delta=0.2)
-          image=tf.Session().run(image)
-          #io.imsave('gen_hue_'+str(i)+'.png',image)
-          image=tf.image.random_saturation(image,lower=0.5, upper=1.5)
-          image=tf.Session().run(image)
-          #io.imsave('gen_sat_'+str(i)+'.png',image)
-          image=tf.image.random_brightness(image,max_delta=32./255.)
-          image=tf.Session().run(image)
-          #io.imsave('gen_bri_'+str(i)+'.png',image)
-          image=tf.image.random_contrast(image,lower=0.5, upper=1.5)
-          image=tf.Session().run(image)
-          #io.imsave('gen_con_'+str(i)+'.png',image)
-          img[i, :, :, :] = image
+        #for i in range(batch_size):
+        #  image = img[i] 
+        image = img
+        if True:
+          run = False
+          if random.randrange(100) < pr:
+            image=tf.image.random_hue(image, max_delta=0.2)
+            run = True
+            #io.imsave('gen_hue_'+str(i)+'.png',image)
+          if random.randrange(100) < pr:
+            image=tf.image.random_saturation(image,lower=0.5, upper=1.5)
+            run = True
+            #io.imsave('gen_sat_'+str(i)+'.png',image)
+          if random.randrange(100) < pr:
+            image=tf.image.random_brightness(image,max_delta=32./255.)
+            run = True
+            #io.imsave('gen_bri_'+str(i)+'.png',image)
+          if random.randrange(100) < pr:
+            image=tf.image.random_contrast(image,lower=0.5, upper=1.5)
+            run = True
+          if run:
+            config = tf.ConfigProto( device_count = {'GPU': 1 , 'CPU': 11} )
+            with tf.Session(config=config) as sess:
+              image=sess.run(image)
+              #tf.Session.reset(sess)
+              sess.close()
+              del sess
+            #io.imsave('gen_con_'+str(i)+'.png',image)
+        #  img[i, :, :, :] = image
+        img = image
         yield (img,mask)
+        del image
     print('Read all input #{}'.format(cnt))
 
 

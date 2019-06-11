@@ -1,6 +1,7 @@
 import numpy as np 
 import os
 import skimage.io as io
+import random
 import skimage.transform as trans
 import numpy as np
 from keras.models import *
@@ -51,7 +52,7 @@ def jaccard_distance(y_true, y_pred, smooth=100):
     jac = (intersection + smooth) / (sum_ - intersection + smooth)
     return (1 - jac) * smooth
 
-def unet(pretrained_weights = None,input_size = (256,256,1), learning_rate=3e-5):
+def unet(sess,pretrained_weights = None,input_size = (256,256,1), learning_rate=3e-5):
     inputs = Input(input_size)
 
     conv1 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(inputs)
