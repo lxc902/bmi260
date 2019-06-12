@@ -1,4 +1,11 @@
-unet_membrane.hdf5
+old_runs
+data/membrane
+data/membrane/train*
 data/membrane/train
-__pycache__/
+data/membrane/train14k
+data/membrane/tmp
+__pycache__
+__pycache__/data.cpython-36.pyc
 *.py[cod]
+*.swp
+
