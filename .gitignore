@@ -8,4 +8,6 @@ __pycache__
 __pycache__/data.cpython-36.pyc
 *.py[cod]
 *.swp
+.*.swp
+.DS_Store
 
